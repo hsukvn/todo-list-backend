@@ -1,35 +1,64 @@
-var Http = require('http');
-var Router = require('router');
-var router = new Router();
-var server;
+var express = require('express');
+var mongoskin = require('mongoskin');
+var bodyParser = require('body-parser');
 
-// temporal array for todo list
-var counter = 0;
-var todoList = {};
+var app = express();
+app.use(bodyParser());
 
-server = Http.createServer(function(request, response) {
-    router(request, response, function(error) {
-        if (!error) {
-            response.writeHead(404);
-        } else {
-            // Handle errors
-            console.log(error.message, error.stack);
-            response.writeHead(400);
+var db = mongoskin.db('mongodb://@localhost:27017/test', {safe:true})
+
+app.param('collectionName', function(req, res, next, collectionName){
+    req.collection = db.collection(collectionName);
+    return next();
+});
+
+app.get('/', function(req, res) {
+    res.send('please select a collection, e.g., /collections/messages');
+});
+
+app.get('/collections/:collectionName', function(req, res, next) {
+    req.collection.find({} ,{limit:10, sort: [['_id',-1]]}).toArray(function(e, results) {
+        if (e) { 
+            return next(e);
         }
-        response.end('RESTful API Server is running!');
-    });
+        res.send(results);
+    })
 });
 
-function createItem(request, response) {
-    var id = counter += 1;
-    console.log('Create item', id);
-    response.writeHead( 201, {
-        'Content-Type' : 'text/plain'
-    });
-    response.end('Item ' + id);
-}
-router.post( '/todo', createItem );
-
-server.listen(5566, function() {
-    console.log('Listening on port 5566');
+app.post('/collections/:collectionName', function(req, res, next) {
+    req.collection.insert(req.body, {}, function(e, results) {
+        if (e) {
+            return next(e);
+        }
+        res.send(results);
+    })
 });
+
+app.get('/collections/:collectionName/:id', function(req, res, next) {
+    req.collection.findById(req.params.id, function(e, result) {
+        if (e) {
+            return next(e);
+        }
+        res.send(result);
+    })
+});
+
+app.put('/collections/:collectionName/:id', function(req, res, next) {
+    req.collection.updateById(req.params.id, {$set:req.body}, {safe:true, multi:false}, function(e, result) {
+        if (e) {
+            return next(e);
+        }
+        res.send((result===1)?{msg:'success'}:{msg:'error'});
+    })
+});
+
+app.del('/collections/:collectionName/:id', function(req, res, next) {
+    req.collection.removeById(req.params.id, function(e, result){
+        if (e) {
+            return next(e);
+        }
+        res.send((result === 1)?{msg: 'success'} : {msg: 'error'});
+    })
+});
+
+app.listen(3000);
