@@ -1,0 +1,22 @@
+{
+  "name": "todo-api-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ilcic/TodoAPIServer.git"
+  },
+  "author": "kevinhsu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ilcic/TodoAPIServer/issues"
+  },
+  "homepage": "https://github.com/ilcic/TodoAPIServer#readme",
+  "dependencies": {
+    "router": "^1.1.4"
+  }
+}
