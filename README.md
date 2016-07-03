@@ -14,7 +14,7 @@
 ```curl localhost:8080/api/todos```
 
 2. POST
-```curl -H "Content-Type: application/json" -X POST -d '{"text":"do something"}' http://localhost:8080/api/todos
+```curl -H "Content-Type: application/json" -X POST -d '{"text":"do something"}' http://localhost:8080/api/todos```
 
 3. DELETE
 ```curl -X DELETE localhost:8080/api/todos/:id```
